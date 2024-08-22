@@ -11,20 +11,35 @@ import IconButton from "../components/IconButton";
 import { MEALS } from "@/data/dummy-data";
 import MealDetail from "@/components/MealDetail";
 import List from "../components/List";
+import { useSelector, useDispatch } from "react-redux";
+import { addToFavorite, removeFromFavorite } from "../store/favorites";
 const MealDetailsScreen = ({ route, navigation }) => {
+  const mealId = route.params.mealId;
+  const dispatch = useDispatch();
+  const favMeals = useSelector((store) => store.favorites.ids);
+  const isFavorite = (mealId) => {
+    return favMeals.includes(mealId);
+  };
   const headerButtonHandler = () => {
-    console.log("Button clicked");
+    if (isFavorite(mealId)) {
+      dispatch(removeFromFavorite(mealId));
+      // console.log("already was in fav so removed");
+    } else {
+      dispatch(addToFavorite(mealId));
+      // console.log("was not in fav so added");
+    }
+    // console.log("Button clicked");
   };
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => {
         return (
-          <IconButton icon="star" color="white" onPress={headerButtonHandler} />
+          <IconButton icon={isFavorite(mealId)?"star":"star-outline"} color="white" onPress={headerButtonHandler} />
         );
       },
     });
   }, [navigation, headerButtonHandler]);
-  const mealId = route.params.mealId;
+
   const selectedMeal = MEALS.find((meal) => meal.id === mealId);
   return (
     <ScrollView style={styles.rootContainer}>
